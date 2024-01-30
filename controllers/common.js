@@ -1,5 +1,5 @@
 import users from "../models/userModel.js";
-// import outings from "../models/outingModel.js";
+import outings from "../models/outingModel.js";
 import moment from "moment";
 import { redisClient } from "../server.js";
 import Joi from "joi";
@@ -90,105 +90,105 @@ export const getCurrentUser = async (req, res) => {
 };
 
 // Get Outings
-// export const getOutings = async (req, res) => {
-//   try {
-//     const { userId, isLate, startDate, endDate, isOpen, reason, gender, page } =
-//       req.query;
-//     const outingFilters = {};
+export const getOutings = async (req, res) => {
+  try {
+    const { userId, isLate, startDate, endDate, isOpen, reason, gender, page } =
+      req.query;
+    const outingFilters = {};
 
-//     // Conditional Outing Queries
-//     if (reason) {
-//       const regexReason = new RegExp(reason, "i");
-//       outingFilters.reason = regexReason;
-//     }
+    // Conditional Outing Queries
+    if (reason) {
+      const regexReason = new RegExp(reason, "i");
+      outingFilters.reason = regexReason;
+    }
 
-//     if (userId) {
-//       outingFilters.userId = userId;
-//     }
+    if (userId) {
+      outingFilters.userId = userId;
+    }
 
-//     if (isOpen) {
-//       outingFilters.isOpen = isOpen;
-//     }
+    if (isOpen) {
+      outingFilters.isOpen = isOpen;
+    }
 
-//     if (isLate) {
-//       outingFilters.lateBy = { $gt: 0 };
-//     }
+    if (isLate) {
+      outingFilters.lateBy = { $gt: 0 };
+    }
 
-//     if (gender) {
-//       outingFilters.gender = gender;
-//     }
+    if (gender) {
+      outingFilters.gender = gender;
+    }
 
-//     if (startDate && endDate) {
-//       outingFilters.outTime = {
-//         $gte: moment(startDate).toDate(),
-//         $lt: moment(endDate).add(1, "day").toDate(),
-//       };
-//     }
+    if (startDate && endDate) {
+      outingFilters.outTime = {
+        $gte: moment(startDate).toDate(),
+        $lt: moment(endDate).add(1, "day").toDate(),
+      };
+    }
 
-//     // Role-Based Control
-//     if (req.session.role === "student") {
-//       outingFilters.userId = req.session.userId;
-//     }
+    // Role-Based Control
+    if (req.session.role === "student") {
+      outingFilters.userId = req.session.userId;
+    }
 
-//     if (req.session.role === "security") {
-//       outingFilters.outTime = {
-//         $gte: moment().subtract(3, "day").toDate(),
-//         $lt: moment().add(1, "day").toDate(),
-//       };
-//     }
+    if (req.session.role === "security") {
+      outingFilters.outTime = {
+        $gte: moment().subtract(3, "day").toDate(),
+        $lt: moment().add(1, "day").toDate(),
+      };
+    }
 
-//     // Fetching Outings
-//     const allOutings = await outings
-//       .find(outingFilters)
-//       .sort({ outTime: -1 })
-//       .skip(((page || 1) - 1) * 20)
-//       .limit(20);
-//     let studentOutingData = [];
+    // Fetching Outings
+    const allOutings = await outings
+      .find(outingFilters)
+      .sort({ outTime: -1 })
+      .skip(((page || 1) - 1) * 20)
+      .limit(20);
+    let studentOutingData = [];
 
-//     for (const outing of allOutings) {
-//       const user = await users.findOne(
-//         { userId: outing.userId },
-//         {
-//           _id: 0,
-//           userId: 1,
-//           name: 1,
-//           gender: 1,
-//           mobile: 1,
-//           hostel: 1,
-//           room: 1,
-//           idCard: 1,
-//         }
-//       );
+    for (const outing of allOutings) {
+      const user = await users.findOne(
+        { userId: outing.userId },
+        {
+          _id: 0,
+          userId: 1,
+          name: 1,
+          gender: 1,
+          mobile: 1,
+          hostel: 1,
+          room: 1,
+          idCard: 1,
+        }
+      );
 
-//       let lateBy = "0";
-//       if (outing.lateBy > 0) {
-//         const duration = moment.duration(outing.lateBy, "minutes");
-//         lateBy = moment.utc(duration.asMilliseconds()).format("HH:mm");
-//       }
+      let lateBy = "0";
+      if (outing.lateBy > 0) {
+        const duration = moment.duration(outing.lateBy, "minutes");
+        lateBy = moment.utc(duration.asMilliseconds()).format("HH:mm");
+      }
 
-//       const studentOutingObj = {
-//         userId: user.userId,
-//         name: user.name,
-//         mobile: user.mobile,
-//         gender: user.gender,
-//         hostel: user.hostel,
-//         room: user.room,
-//         idCard: user.idCard,
-//         isOpen: outing.isOpen,
-//         reason: outing.reason,
-//         lateBy,
-//         outTime: moment(outing.outTime).format("DD-MM-YYYY HH:mm:ss"),
-//         inTime:
-//           outing.inTime === null
-//             ? "NA"
-//             : moment(outing.inTime).format("DD-MM-YYYY HH:mm"),
-//       };
+      const studentOutingObj = {
+        userId: user.userId,
+        name: user.name,
+        mobile: user.mobile,
+        gender: user.gender,
+        hostel: user.hostel,
+        room: user.room,
+        idCard: user.idCard,
+        isOpen: outing.isOpen,
+        reason: outing.reason,
+        lateBy,
+        outTime: moment(outing.outTime).format("DD-MM-YYYY HH:mm:ss"),
+        inTime:
+          outing.inTime === null
+            ? "NA"
+            : moment(outing.inTime).format("DD-MM-YYYY HH:mm"),
+      };
 
-//       studentOutingData.push(studentOutingObj);
-//     }
+      studentOutingData.push(studentOutingObj);
+    }
 
-//     return res.status(200).send(studentOutingData);
-//   } catch (error) {
-//     return res.status(500).send(error.message);
-//   }
-// };
+    return res.status(200).send(studentOutingData);
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+};

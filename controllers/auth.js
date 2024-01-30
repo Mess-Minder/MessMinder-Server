@@ -153,6 +153,7 @@ export const sendOTP = async (req, res) => {
       html: otpTemplate,
     };
 
+    console.log(11);
     const result = await sendMail(mailOptions);
     if (result.accepted) {
       // Store temporary information

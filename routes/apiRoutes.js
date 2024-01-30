@@ -1,13 +1,13 @@
 import { Router } from "express";
 import {
-//   verifyOutingChecks,
+  // verifyOutingChecks,
   requireAuth,
   checkEmail,
 } from "../helpers/middlewares.js";
 import {
   getCurrentUser,
   updateUser,
-//   getOutings,
+  // getOutings,
   logOut,
 } from "../controllers/common.js";
 // import { searchStudents, closeGateEntry } from "../controllers/security.js"; //no need

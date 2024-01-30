@@ -41,7 +41,7 @@ export const sendMail = async (mailOptions) => {
       },
     });
 
-    // console.log(process.env.GMAIL_APP_PASS);
+    console.log(process.env.GMAIL_APP_PASS);
     const info = await transporter.sendMail(mailOptions);
     //error here
     return info;
